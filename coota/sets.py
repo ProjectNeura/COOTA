@@ -1,0 +1,2 @@
+NUMBER_SET: str = "1234567890"
+LETTER_SET: str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
