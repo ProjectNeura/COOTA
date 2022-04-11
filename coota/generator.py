@@ -302,8 +302,8 @@ class Generator(object):
 
 
 class ItertableGenerator(Generator):
-    def __init__(self, default_args: Sequence = None, **args):
-        super().__init__(default_args, **args)
+    def __init__(self, *default_args, **args):
+        super().__init__(*default_args, **args)
         self._pointer: Any = 0
         self.initialize()
 

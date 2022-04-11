@@ -475,7 +475,7 @@ def output(self, *args, parse: bool = False) -> GeneratorOutput:
 
 ### IterableGenerator
 
-Iterablegenerato is an ordered iterator, not a selector. It achieves ordering by adding a pointer to the generator.
+An **IterableGenerator** is an ordered iterator, not a selector. It achieves ordering by adding a pointer to the generator.
 
 #### `get_pointer()`
 
@@ -484,3 +484,5 @@ def get_pointer(self) -> Any:
 ```
 
 ### GeneratorSequence
+
+A **GeneratorSequence** is a list of generators and strings. 
