@@ -126,7 +126,7 @@ The nesting depth is not limited. Any default argument like `string_length` can 
 
 ### Data Generation
 
-Instantiate a generator.
+#### Instantiate A Generator
 
 Built-in generators:
 
@@ -163,6 +163,10 @@ print(output)
 ```
 
 ## Documentation
+
+General flow path:
+
+![pic1](README.assets/pic1.svg)
 
 ### Chooser
 

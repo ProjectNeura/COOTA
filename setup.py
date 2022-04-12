@@ -5,19 +5,14 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="coota",
-    version="1.0.0",
+    version="1.0.0-beta",
     author="ATATC",
     author_email="futerry@outlook.com",
     description="A powerful data-generating library.",
+    license='Apache License 2.0',
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/atatc/coota",
     packages=setuptools.find_packages(),
-    install_requires=["numpy", "cupy", "matplotlib"],
-    classifiers=[
-        'Development Status :: 4 - Beta'
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: Apache 2.0",
-        "Operating System :: OS Independent",
-    ]
+    install_requires=["numpy", "matplotlib"],
 )
