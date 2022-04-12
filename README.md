@@ -676,11 +676,11 @@ This method specifies how the probability of each item being selected is distrib
 def fits(self, loc: float, scale: float, size: int, *args) -> Sequence: pass
 ```
 
-| Name   | Usage                    |
-| ------ | ------------------------ |
-| loc    | The most probable index. |
-| scale  |                          |
-| size   |                          |
-| args   |                          |
-| return |                          |
+| Name   | Usage                                                        |
+| ------ | ------------------------------------------------------------ |
+| loc    | The most probable index.                                     |
+| scale  | Standard deviation.                                          |
+| size   | The length of the source.                                    |
+| args   | Optional arguments.                                          |
+| return | A list of weights. For example, `numpy.ndarray([1, 1.5, 4.0, 10])`. |
 
