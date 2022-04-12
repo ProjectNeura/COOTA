@@ -5,14 +5,10 @@ from coota.toolkit import *
 
 
 class GeneratorSequence(object):
-    def __init__(self, *sequence, n: int, args: tuple = None):
-        if args is None:
-            args = tuple([None] * len(sequence))
-        if len(sequence) != len(args):
-            raise AttributeError("'args' should have the same length as 'sequential'.")
+    def __init__(self, *sequence, n: int, t: type = str):
         self._sequential: tuple = sequence
-        self._args: tuple = args
         self._n: int = n
+        self._t: type = t
         self._i: int = n
 
     def __len__(self):
@@ -28,27 +24,47 @@ class GeneratorSequence(object):
         self._i = self._n
         return self
 
-    def __next__(self) -> str:
-        if self._i < 1:
-            raise StopIteration
+    def _next_str(self) -> str:
         s = ""
         for i in range(len(self)):
             j = self.get_sequence()[i]
             if isinstance(j, Generator):
-                args = self.get_args()[i]
-                s += str(j.generate() if args is None else j.generate(*args))
+                s += str(j.generate())
             else:
                 s += str(j)
-        self._i -= 1
         return s
 
-    def set_args(self, args: tuple) -> None:
-        if len(self.get_sequence()) != len(args):
-            raise AttributeError("'args' should have the same length as 'sequential'.")
-        self._args: tuple = args
+    def _next_list(self) -> list:
+        s = []
+        for i in range(len(self)):
+            j = self.get_sequence()[i]
+            if isinstance(j, Generator):
+                s.append(j.generate())
+            else:
+                s.append(j)
+        return s
+
+    def _next(self) -> Union[str, tuple, list]:
+        r = self._next_str() if self._t == str else self._next_list()
+        if self._t == tuple:
+            r = tuple(r)
+        return r
+
+    def __next__(self) -> Union[str, tuple, list]:
+        if self._i < 1:
+            self._i = self._n
+            raise StopIteration
+        self._i -= 1
+        return self._next()
 
     def get_sequence(self) -> tuple:
         return self._sequential
 
-    def get_args(self) -> tuple:
-        return self._args
+    def output(self) -> GeneratorOutput:
+        r = []
+        for _ in range(self._n):
+            r.append(self._next())
+        return GeneratorOutput(r)
+
+    def save(self) -> None:
+        pass

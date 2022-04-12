@@ -5,7 +5,16 @@ import abc as _abc
 
 class Distribution(object):
     @_abc.abstractmethod
-    def fits(self, loc: float, scale: float, size: int, *args) -> Sequence: pass
+    def fits(self, loc: float, scale: float, size: int, *args) -> Sequence:
+        """
+
+        :param loc:
+        :param scale:
+        :param size:
+        :param args:
+        :return:
+        """
+        pass
 
 
 class NormalDistribution(Distribution):

@@ -5,7 +5,7 @@ import abc as _abc
 import os as _os
 
 
-from coota import generator as _g_, distribution as _dtb
+from coota import generator as _g, distribution as _dtb
 
 
 class Operator(object):
@@ -46,31 +46,29 @@ class Operator(object):
         return self.loads(content=self.get_content())
 
 
-class ChooserOperator(Operator):
+class ObjectOperator(Operator):
+    @_abc.abstractmethod
+    def get_id(self) -> int:
+        pass
+
+    @staticmethod
+    def loads(content: bytes) -> Any:
+        return _pickle.loads(content)
+
+
+class ChooserOperator(ObjectOperator):
     def get_id(self) -> int:
         return 1
 
-    @staticmethod
-    def loads(content: bytes) -> _g_.Chooser:
-        return _pickle.loads(content)
 
-
-class DistributionOperator(Operator):
+class DistributionOperator(ObjectOperator):
     def get_id(self) -> int:
         return 2
 
-    @staticmethod
-    def loads(content: bytes) -> _dtb.Distribution:
-        return _pickle.loads(content)
 
-
-class GeneratorOperator(Operator):
+class GeneratorOperator(ObjectOperator):
     def get_id(self) -> int:
         return 3
-
-    @staticmethod
-    def loads(content: bytes) -> _g_.Generator:
-        return _pickle.loads(content)
 
 
 @_singledispatch
@@ -78,8 +76,8 @@ def save(obj, path: Union[str, _os.PathLike[str]]) -> None:
     raise TypeError(f"No known case for type {type(obj)}, {type(path)}.")
 
 
-@save.register(_g_.Chooser)
-def _(obj: _g_.Chooser, path: Union[str, _os.PathLike[str]]) -> None:
+@save.register(_g.Chooser)
+def _(obj: _g.Chooser, path: Union[str, _os.PathLike[str]]) -> None:
     ChooserOperator(path, _pickle.dumps(obj)).save()
 
 
@@ -88,6 +86,6 @@ def _(obj: _dtb.Distribution, path: Union[str, _os.PathLike[str]]) -> None:
     DistributionOperator(path, _pickle.dumps(obj))
 
 
-@save.register(_g_.Generator)
-def _(obj: _g_.Generator, path: Union[str, _os.PathLike[str]]) -> None:
+@save.register(_g.Generator)
+def _(obj: _g.Generator, path: Union[str, _os.PathLike[str]]) -> None:
     GeneratorOperator(path, _pickle.dumps(obj)).save()
