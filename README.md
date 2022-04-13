@@ -126,40 +126,314 @@ The nesting depth is not limited. Any default argument like `string_length` can 
 
 ### Data Generation
 
-#### Instantiate A Generator
+#### Start Using Generators
 
-Built-in generators:
+##### Built-in Generators
 
-*coota.generator*
+###### LetterGenerator
 
-- **LetterGenerator**
-- **StringGenerator**
-- **NumberGenerator**
-- **LetterAndNumberGenerator**
-- **IntGenerator**
-- **IntIterable**
+```python
+from coota import *
 
-*coota.preset.generator*
 
-- **TimeGenerator**
-- **EmailGenerator**
-- **QQMailGenerator**
+# generate one letter
+generator = LetterGenerator()
+letter = generator.generate()
+print(type(letter), letter)
+```
 
-The following takes the time generator as an example.
+```shell
+<class 'str'> L
+```
+
+###### StringGenerator
+
+```python
+from coota import *
+
+
+# generate a string of 5 letters
+string_length = 5
+
+generator = StringGenerator()
+string = generator.generate(string_length)
+print(type(string), string)
+```
+
+```shell
+<class 'str'> HsebO
+<class 'str'> zfIXi
+```
+
+###### NumberGenerator
+
+```python
+from coota import *
+
+
+# generate a 10 digit number
+number_digit = 10
+
+generator = NumberGenerator()
+number = generator.generate(number_digit)   # the first digit of the number cannot be zero except 0, like 012
+print(type(number), number)
+```
+
+```shell
+<class 'str'> 4947421207
+```
+
+###### LetterAndNumberGenerator
+
+```python
+from coota import *
+
+
+# generate a string of 6 letters and numbers
+string_length = 6
+
+generator = LetterAndNumberGenerator()
+string = generator.generate(string_length)
+print(type(string), string)
+```
+
+```shell
+<class 'str'> dPgpJ9
+```
+
+###### IntGenerator
+
+```python
+from coota import *
+
+
+# generate an integer (0 ≤ x < 10)
+range_from, range_to = 0, 10
+
+generator = IntGenerator(start=range_from, stop=range_to)
+integer = generator.generate()
+print(type(integer), integer)
+```
+
+```shell
+<class 'int'> 9
+```
+
+###### IntIterable
+
+```python
+from coota import *
+
+
+# create an IntIterable
+range_from, range_to = 0, 10
+step = 1    # optional, 1 by default
+
+iterable_a = IntIterable(start=range_from, stop=range_to, step=step)
+integer_a, integer_b = iterable_a.generate(), iterable_a.generate()
+print(type(integer_a), integer_a, integer_b)
+
+print("Example in the for loop:")
+iterable_b = IntIterable(start=range_from, stop=range_to, step=step)
+for integer in iterable_b:
+    print(type(integer), integer)
+```
+
+```shell
+<class 'int'> 0 1
+Example in the for loop:
+<class 'int'> 0
+<class 'int'> 1
+<class 'int'> 2
+<class 'int'> 3
+<class 'int'> 4
+<class 'int'> 5
+<class 'int'> 6
+<class 'int'> 7
+<class 'int'> 8
+<class 'int'> 9
+```
+
+###### TimeGenerator
+
+```python
+from coota.preset import *
+import datetime
+
+
+# generate a datetime from April 1, 2022 to June 1, 2022
+# can be either str or datetime.datetime object or integer time stamp
+range_from, range_to = "2022-4-1", "2022.6.1"   # optional, the default range is from now to next year
+# range_from, range_to = datetime.datetime(year=2022, month=4, day=1), datetime.datetime(year=2022, month=6, day=1)
+# range_from, range_to = 1648791336, 1654061736
+
+generator = TimeGenerator(start=range_from, stop=range_to)
+time = generator.generate()
+print(type(time), time)
+```
+
+```shell
+<class 'datetime.datetime'> 2022-05-24 18:12:00
+```
+
+###### EmailGenerator
 
 ```python
 from coota.preset import *
 
 
-generator = TimeGenerator(start="2022-4-12", stop="2022-5-12")
-output = generator.generate()
-print(type(output))
-print(output)
+# generate an email address with a 7-digit name ending with "outlook.com"
+domain, name_length = "outlook.com", 7
+
+generator = EmailGenerator(domain=domain)
+email = generator.generate(name_length)
+print(type(email), email)
 ```
 
 ```shell
-<class 'datetime.datetime'>
-2022-05-06 08:21:13
+<class 'str'> RUSyUY5@outlook.com
+```
+
+###### QQMailGenerator
+
+```python
+from coota.preset import *
+
+
+# generate a QQMail address with a 13-digit name
+name_length = 13
+
+generator = QQMailGenerator()
+qqmail = generator.generate(name_length)
+print(type(qqmail), qqmail)
+```
+
+```shell
+<class 'str'> 7160380273761@qq.com
+```
+
+###### NameGenerator
+
+```python
+from coota.preset import *
+
+
+# generate a name
+generator = NameGenerator()
+name = generator.generate()
+print(type(name), name)
+```
+
+```shell
+<class 'str'> Nikita
+```
+
+##### Custom Generators
+
+###### Generator
+
+See the documentation section for a detailed explanation.
+
+```python
+from coota import *
+
+
+class MyGenerator(Generator):
+    def source(self) -> Sequence:
+        return "option A", "option B", "option C"
+
+    def make(self, *args) -> Any:
+        return self.choice()
+
+
+my_generator = MyGenerator()
+option = my_generator.generate()
+print(option)
+```
+
+```shell
+option C
+```
+
+###### Iterable Generator
+
+See the documentation section for a detailed explanation.
+
+```python
+from coota import *
+
+
+class MyIterableGenerator(ItertableGenerator):
+    def initialize(self) -> None:
+        self.set_pointer(0)
+
+    def step(self) -> bool:
+        self.set_pointer(self.get_pointer() + 1)
+        return self.get_pointer() <= len(self.get_source())
+
+    def source(self) -> Sequence:
+        return "A", "B", "C", "D"
+
+    def make(self, *args) -> Any:
+        return self.get_source()[self.get_pointer()]
+
+
+my_iterable_generator = MyIterableGenerator()
+for opt in my_iterable_generator:
+    print(opt)
+```
+
+```shell
+A
+B
+C
+D
+```
+
+##### Different Ways of Passing Arguments
+
+###### Default Arguments
+
+```python
+from coota.preset import *
+
+
+domain, name_length = "outlook.com", 7
+
+generator = EmailGenerator(domain=domain)
+email = generator.generate(name_length)
+```
+
+The above example can be replaced by the following code:
+
+```python
+from coota.preset import *
+
+
+domain, name_length = "outlook.com", 7
+
+generator = EmailGenerator(name_length, domain=domain)
+email = generator.generate()
+```
+
+In other words, the arguments given to `generate()` can be given to the constructor with the same order so that no arguments are necessary in `generate()`.
+However, the global arguments for generator can only be given to the constructor. If you don't know much about the argument format of python, the arguments in the form of `name=value` is are global arguments, the others are default arguments.
+
+###### Use A Generator as An Argument
+
+For example, you want to generate a random length string:
+
+```python
+from coota import *
+
+
+string_length = IntGenerator(start=1, stop=10)
+
+generator = StringGenerator()
+string = generator.generate(string_length)
+# or
+generator = StringGenerator(string_length)
+string = generator.generate()
 ```
 
 ## Documentation
@@ -285,8 +559,8 @@ def __init__(self, *default_args, **args):
 
 | Name         | Usage                                                        |
 | ------------ | ------------------------------------------------------------ |
-| default_args | Given to `make()` when no arguments are given to `generate()`. For example, in a **GeneratorSequence**, `generate()` is called with no arguments, then the `default_args` will be given to `make()`. |
-| args         | Global arguments for the generator.                          |
+| default_args | Given to `make()` when no arguments are given to `generate()`. For example, in a **GeneratorSequence**, `generate()` is called with no arguments, then the `default_args` will be given to `make()`. Required arguments are listed in the specific generators. |
+| args         | Global arguments for the generator. Required arguments are listed in the specific generators. |
 
 #### `_get_weights()`
 

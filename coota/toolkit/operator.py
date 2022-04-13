@@ -47,6 +47,9 @@ class Operator(object):
 
 
 class ObjectOperator(Operator):
+    def __init__(self, path: Union[str, _os.PathLike[str]], obj):
+        super().__init__(path, _pickle.dumps(obj))
+
     @_abc.abstractmethod
     def get_id(self) -> int:
         pass
@@ -66,9 +69,19 @@ class DistributionOperator(ObjectOperator):
         return 2
 
 
-class GeneratorOperator(ObjectOperator):
+class AssociationOperator(ObjectOperator):
     def get_id(self) -> int:
         return 3
+
+
+class GeneratorOperator(ObjectOperator):
+    def get_id(self) -> int:
+        return 4
+
+
+class GeneratorOutputOperator(ObjectOperator):
+    def get_id(self) -> int:
+        return 5
 
 
 @_singledispatch
@@ -78,14 +91,24 @@ def save(obj, path: Union[str, _os.PathLike[str]]) -> None:
 
 @save.register(_g.Chooser)
 def _(obj: _g.Chooser, path: Union[str, _os.PathLike[str]]) -> None:
-    ChooserOperator(path, _pickle.dumps(obj)).save()
+    ChooserOperator(path, obj).save()
 
 
 @save.register(_dtb.Distribution)
 def _(obj: _dtb.Distribution, path: Union[str, _os.PathLike[str]]) -> None:
-    DistributionOperator(path, _pickle.dumps(obj))
+    DistributionOperator(path, obj)
+
+
+@save.register(_g.Association)
+def _(obj: _g.Association, path: Union[str, _os.PathLike[str]]) -> None:
+    AssociationOperator(path, obj).save()
 
 
 @save.register(_g.Generator)
 def _(obj: _g.Generator, path: Union[str, _os.PathLike[str]]) -> None:
-    GeneratorOperator(path, _pickle.dumps(obj)).save()
+    GeneratorOperator(path, obj).save()
+
+
+@save.register(_g.GeneratorOutput)
+def _(obj: _g.GeneratorOutput, path: Union[str, _os.PathLike[str]]) -> None:
+    GeneratorOutputOperator(path, obj)

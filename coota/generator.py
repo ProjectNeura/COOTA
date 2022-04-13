@@ -83,7 +83,8 @@ class Generator(object):
         :param default_args: Given to `make()` when no arguments are given to `generate()`.
             For example, in a **GeneratorSequence**, `generate()` is called with no arguments,
             then the `default_args` will be given to `make()`.
-        :param args: Global arguments for the generator.
+            Required arguments are listed in the specific generators.
+        :param args: Global arguments for the generator. Required arguments are listed in the specific generators.
         """
         self._parseable: bool = True
         self._uc: bool = True
@@ -417,6 +418,12 @@ class NumberGenerator(StringGenerator):
     def source(self) -> Sequence:
         return NUMBER_SET
 
+    def make(self, *args) -> Any:
+        s = super(NumberGenerator, self).make(*args)
+        if len(s) > 1 and s[0] == "0":
+            s[0] = self.get_chooser().choice("123456789")
+        return s
+
 
 class LetterAndNumberGenerator(StringGenerator):
     def source(self) -> Sequence:
@@ -445,4 +452,4 @@ class IntIterable(ItertableGenerator):
 
     def step(self) -> bool:
         self._pointer += self.get_arg_or_default("step", 1, required_type=int)
-        return self._pointer < self.get_required_arg("stop", required_type=int)
+        return self._pointer <= self.get_required_arg("stop", required_type=int)
