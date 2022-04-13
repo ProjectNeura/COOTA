@@ -161,8 +161,7 @@ print(type(string), string)
 ```
 
 ```shell
-<class 'str'> HsebO
-<class 'str'> zfIXi
+<class 'str'> ieyDW
 ```
 
 ###### NumberGenerator
