@@ -340,6 +340,7 @@ class ItertableGenerator(Generator):
         self.initialize()
 
     def __iter__(self) -> Iterable:
+        self.initialize()
         return self
 
     def __next__(self) -> Any:

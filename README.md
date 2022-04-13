@@ -124,7 +124,7 @@ String: OL, Integer: 2
 
 The nesting depth is not limited. Any default argument like `string_length` can be a generator. Global arguments like `int_range_from` and `int_range_to` can also be generators, but they won't be parsed.
 
-### Data Generation
+### Data Generating
 
 #### Start Using Generators
 
@@ -433,6 +433,35 @@ string = generator.generate(string_length)
 # or
 generator = StringGenerator(string_length)
 string = generator.generate()
+```
+
+### Data Saving
+
+#### Generator
+
+##### Save
+
+```python
+from coota import *
+
+
+path = "generator.g"
+
+generator = LetterGenerator()
+save(generator, path)
+```
+
+##### Load
+
+```python
+from coota import *
+
+
+path = "generator.g"
+
+generator = load(path)
+# or
+generator = GeneratorOperator(path).load()
 ```
 
 ## Documentation

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="coota",
-    version="1.0.0-beta",
+    version="1.0.0-beta1",
     author="ATATC",
     author_email="futerry@outlook.com",
     description="A powerful data-generating library.",
