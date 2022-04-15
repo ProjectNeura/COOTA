@@ -31,6 +31,11 @@ class GeneratorSequence(object):
         self._i -= 1
         return self._next()
 
+    def _initialize(self) -> None:
+        for i in self.get_sequence():
+            if isinstance(i, _g.ItertableGenerator):
+                i.initialize()
+
     def _next_str(self) -> str:
         s = ""
         for i in range(len(self)):

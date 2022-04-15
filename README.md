@@ -418,7 +418,7 @@ email = generator.generate()
 In other words, the arguments given to `generate()` can be given to the constructor with the same order so that no arguments are necessary in `generate()`.
 However, the global arguments for generator can only be given to the constructor. If you don't know much about the argument format of python, the arguments in the form of `name=value` is are global arguments, the others are default arguments.
 
-###### Use A Generator as An Argument
+###### Use a Generator as an Argument
 
 For example, you want to generate a random length string:
 
@@ -435,11 +435,142 @@ generator = StringGenerator(string_length)
 string = generator.generate()
 ```
 
+#### Generators with Different Choosers (Distributions)
+
+To make the generator fit a certain distribution, you can change the generator's chooser.
+
+Built-in choosers:
+
+- GaussianChooser
+
+Following demo programs take **GaussianChooser** as an example. The same for other choosers. Some choosers may require additional arguments. More information in the documentation section.
+
+##### Create a Chooser
+
+```python
+from coota import *
+
+
+loc, size = 0, 100
+
+chooser = GaussianChooser()
+show(chooser)    # visualize the chooser
+```
+
+![pic2](README.assets/pic2.png)
+
+##### Make a Generator Fit the Distribution
+
+```python
+from coota import *
+
+
+chooser = GaussianChooser()
+generator = IntGenerator(start=40, stop=140)
+generator.set_chooser(chooser)
+result = []
+for _ in range(100):
+    result.append(generator.generate())
+show(result)
+```
+
+![pic3](README.assets/pic3.png)
+
+#### Associate with Another Generator
+
+There is no preset **Association**, so a custom association class must be declared.
+
+For example, the following case shows a demo program that makes the generator fit a random distribution each time.
+
+```python
+from coota import *
+
+
+class DistributionGenerator(Generator):
+    def source(self) -> Sequence:
+        return DefaultChooser(), GaussianChooser()
+
+    def make(self, *args) -> Any:
+        return self.choice()
+
+
+class MyAssociation(Association):
+    def associate(self, g: Any, the_other_generator_output: Any) -> Any:
+        g.set_chooser(the_other_generator_output)
+
+
+generator_a = DistributionGenerator()
+generator_b = IntGenerator(start=0, stop=10)
+generator_sequence = GeneratorSequence(generator_a, " ", generator_b, n=5)
+generator_b.set_association(MyAssociation(generator_a))
+for i in generator_sequence:
+    print(i)
+```
+
+```shell
+<coota.generator.DefaultChooser object at 0x1085995e0> 9
+<coota.generator.DefaultChooser object at 0x1085995e0> 2
+<coota.generator.GaussianChooser object at 0x108599790> 4
+<coota.generator.DefaultChooser object at 0x1085995e0> 5
+<coota.generator.DefaultChooser object at 0x1085995e0> 9
+```
+
+You must have found that this step can be achieved by filling in a generator-type argument. Thus, an **Association** is usually used for the existence of some logical association between two generators rather than random or mathematical association.
+
+The second case shows how an **Association** works in resolving logical problems.
+
+```python
+from coota.preset import *
+from coota import *
+
+
+class GenderGenerator(Generator):
+    def source(self) -> Sequence:
+        return "male", "female"
+
+    def make(self, *args) -> Any:
+        return self.choice()
+
+
+class MyAssociation(Association):
+    def associate(self, g: Any, the_other_generator_output: Any) -> Any:
+        if the_other_generator_output == "male":
+            return g.get_chooser().choice(NAME_MALE)
+        else:
+            return g.get_chooser().choice(NAME_FEMALE)
+
+
+generator_a = GenderGenerator()
+generator_b = NameGenerator()
+generator_sequence = GeneratorSequence("{'sex': '", generator_a, "', 'name': '", generator_b, "'}", n=5)
+generator_b.set_association(MyAssociation(generator_a))
+for i in generator_sequence:
+    print(i)
+```
+
+```json
+{'sex': 'female', 'name': 'Dora'}
+{'sex': 'female', 'name': 'Joan'}
+{'sex': 'male', 'name': 'Benson'}
+{'sex': 'male', 'name': 'Garfield'}
+{'sex': 'male', 'name': 'Paul'}
+```
+
+In this example, I want to generate five random names containing gender. However, if the two generators are independent of each other, there may be a man with a female name. That's what an **Association** is for.
+
 ### Data Saving
 
-#### Generator
+Following cases take a **Generator** as example. The same for other objects. More information in the documentation section.
 
-##### Save
+Supported objects:
+
+- **Chooser**
+- **Association**
+- **Generator**
+- **GeneratorOutput**
+- **GeneratorSequence**
+
+#### Save
 
 ```python
 from coota import *
@@ -451,7 +582,7 @@ generator = LetterGenerator()
 save(generator, path)
 ```
 
-##### Load
+#### Load
 
 ```python
 from coota import *
@@ -496,15 +627,14 @@ This method specifies how the chooser selects a batch of items.
 
 ```python
 @abstractmethod
-def choices(self, x: Sequence, n: int, weights: Sequence = None) -> Sequence:
+def choices(self, x: Sequence, n: int) -> Sequence:
 ```
 
-| Name    | Usage                                                   |
-| ------- | ------------------------------------------------------- |
-| x       | The data source from which the chooser chooses.         |
-| n       | The number of choices.                                  |
-| weights | A list of weights for each item when randomly selected. |
-| return  | A list of items chosen from `x`.                        |
+| Name   | Usage                                           |
+| ------ | ----------------------------------------------- |
+| x      | The data source from which the chooser chooses. |
+| n      | The number of choices.                          |
+| return | A list of items chosen from `x`.                |
 
 ### Association
 
@@ -538,14 +668,14 @@ This method specifies the association between the output of two generators.
 
 ```python
 @abstractmethod
-def associate(self, generator: Any, the_other_generator_output: Any) -> Any:
+def associate(self, g: Any, the_other_generator_output: Any) -> Any:
 ```
 
 | Name                       | Usage                                                        |
 | -------------------------- | ------------------------------------------------------------ |
-| generator                  | The generator whose `set_association()` is called with the association given to. |
+| G                          | The generator whose `set_association()` is called with the association given to. |
 | the_other_generator_output | The output generated by the other generator.                 |
-| return                     | Anything.                                                    |
+| return                     | Anything. If not none, the return will be returned by `generate()`, or the process will continue. |
 
 ### GeneratorOutput
 
@@ -589,27 +719,6 @@ def __init__(self, *default_args, **args):
 | ------------ | ------------------------------------------------------------ |
 | default_args | Given to `make()` when no arguments are given to `generate()`. For example, in a **GeneratorSequence**, `generate()` is called with no arguments, then the `default_args` will be given to `make()`. Required arguments are listed in the specific generators. |
 | args         | Global arguments for the generator. Required arguments are listed in the specific generators. |
-
-#### `_get_weights()`
-
-```python
-def _get_weights(self) -> Union[Sequence, None]:
-```
-
-| Name   | Usage                                                   |
-| ------ | ------------------------------------------------------- |
-| return | A list of weights for each item when randomly selected. |
-
-#### `_set_weights()`
-
-```python
-def _set_weights(self, weights: Sequence) -> None:
-```
-
-| Name    | Usage                                                        |
-| ------- | ------------------------------------------------------------ |
-| weights | A list of weights for each item when randomly selected, whose length must be the same as `source` returns. |
-| return  |                                                              |
 
 #### `_get_source_cache()`
 
@@ -775,7 +884,7 @@ def set_chooser(self, chooser: Chooser) -> None:
 
 | Name    | Usage                                                        |
 | ------- | ------------------------------------------------------------ |
-| chooser | Set the generator's chooser. A **DefaultChooser** is used by default. If you want to customize the behavior of choosing, you can create your own chooser object and set it in the generator. |
+| chooser | Set the generator's chooser. A **DefaultChooser** is used by default. If you want to change the behavior of choosing, such as making it fit a certain distribution, you can do so by changing the chooser object. |
 | return  |                                                              |
 
 #### `get_association()`
@@ -843,18 +952,6 @@ def get_source(self) -> Sequence:
 | ------ | ------------------------------------------------------------ |
 | return | The same as `source()` returns. If `use_cache` is true, returns the source cache instead. |
 
-#### `fits()`
-
-```python
-def fits(self, distribution: Distribution, *args) -> None:
-```
-
-| Name         | Usage                                         |
-| ------------ | --------------------------------------------- |
-| distribution | The distribution to which the generator fits. |
-| args         | Optional arguments for the distribution.      |
-| return       |                                               |
-
 #### `abstract:make()`
 
 This method specifies how to generate data.
@@ -880,6 +977,10 @@ def generate(self, *args, parse: bool = True) -> Any:
 | args   | Optional arguments given to `make()`.                        |
 | parse  | Whether to resolve the generator in parameters and return values. True: return an output. False: return the generator itself. |
 | return | Anything.                                                    |
+
+| Exception   | Case                                                         |
+| ----------- | ------------------------------------------------------------ |
+| LookupError | The associated generator generated before the generator to which is associated has generated. |
 
 #### `output()`
 
@@ -968,25 +1069,4 @@ def step(self) -> bool:
 | Name   | Usage                                            |
 | ------ | ------------------------------------------------ |
 | return | True: continue iteration. False: stop iteration. |
-
-### Distribution
-
-**Distribution** can adjust the probability that each item in the source is selected.
-
-#### `abstract:fits()`
-
-This method specifies how the probability of each item being selected is distributed.
-
-```python
-@abstractmethod
-def fits(self, loc: float, scale: float, size: int, *args) -> Sequence: pass
-```
-
-| Name   | Usage                                                        |
-| ------ | ------------------------------------------------------------ |
-| loc    | The most probable index.                                     |
-| scale  | Standard deviation.                                          |
-| size   | The length of the source.                                    |
-| args   | Optional arguments.                                          |
-| return | A list of weights. For example, `numpy.ndarray([1, 1.5, 4.0, 10])`. |
 

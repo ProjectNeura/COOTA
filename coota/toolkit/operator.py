@@ -5,7 +5,7 @@ import abc as _abc
 import os as _os
 
 
-from coota import generator as _g, distribution as _dtb, generator_sequence as _gs
+from coota import generator as _g, generator_sequence as _gs
 
 
 class Operator(object):
@@ -132,11 +132,6 @@ def _(obj: str, path: Union[str, _os.PathLike[str]]) -> None:
 @save.register(_g.Chooser)
 def _(obj: _g.Chooser, path: Union[str, _os.PathLike[str]]) -> None:
     ChooserOperator(path, obj).save()
-
-
-@save.register(_dtb.Distribution)
-def _(obj: _dtb.Distribution, path: Union[str, _os.PathLike[str]]) -> None:
-    DistributionOperator(path, obj).save()
 
 
 @save.register(_g.Association)
