@@ -435,6 +435,62 @@ generator = StringGenerator(string_length)
 string = generator.generate()
 ```
 
+###### Not Use a Generator as an Argument
+
+If you want to pass the generator intact, there are two ways.
+
+```python
+from coota import *
+
+
+generator = LetterGenerator()
+generator.set_parseable(False)
+output = generator.generate()
+print(type(output), output)
+```
+
+```shell
+<class 'coota.generator.LetterGenerator'> [Generator({})]
+```
+
+```python
+from coota import *
+
+
+generator = LetterGenerator()
+output = generator.generate(parse=False)
+print(type(output), output)
+```
+
+```shell
+<class 'coota.generator.LetterGenerator'> [Generator({})]
+```
+
+Here's a use case.
+
+```python
+from coota import *
+
+
+class GeneratorGenerator(Generator):
+    def source(self) -> Sequence:
+        g1 = LetterGenerator()
+        g2 = StringGenerator(5)
+        return g1, g2
+
+    def make(self, *args) -> Any:
+        return self.choice()
+
+
+generator = GeneratorGenerator()
+generator_output = generator.generate(parse=False)
+print(type(generator_output), generator_output)
+```
+
+```shell
+<class 'coota.generator.LetterGenerator'> [Generator({})]
+```
+
 #### Generators with Different Choosers (Distributions)
 
 To make the generator fit a certain distribution, you can change the generator's chooser.
