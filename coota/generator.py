@@ -318,10 +318,10 @@ class Generator(object):
         for i in range(len(args)):
             arg = args[i]
             if isinstance(arg, Generator):
-                args[i] = arg.generate(parse=False)
+                args[i] = arg.generate(parse=parse)
         r = self.make(*args)
         if isinstance(r, Generator):
-            r = r.generate(parse=False)
+            r = r.generate(parse=parse)
         self._set_last(r)
         return r
 
