@@ -498,6 +498,8 @@ To make the generator fit a certain distribution, you can change the generator's
 Built-in choosers:
 
 - GaussianChooser
+- BinomialChooser
+- PoissonChooser
 
 Following demo programs take **GaussianChooser** as an example. The same for other choosers. Some choosers may require additional arguments. More information in the documentation section.
 

@@ -14,5 +14,5 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/atatc/coota",
     packages=setuptools.find_packages(),
-    install_requires=["numpy", "matplotlib"],
+    install_requires=["numpy", "matplotlib", "scipy"],
 )

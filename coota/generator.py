@@ -1,3 +1,4 @@
+from scipy.stats import binom as _binom, poisson as _poisson, hypergeom as _hypergeom
 from typing import Union, Any, Iterable, Sequence
 import random as _rd
 import numpy as _np
@@ -52,6 +53,40 @@ class GaussianChooser(Chooser):
         return x[int(_np.random.normal(*self._analyse(x), size=1))]
 
 
+class DiscreteChooser(Chooser):
+    @_abc.abstractmethod
+    def get_weights(self, length: int) -> list[float]:
+        pass
+
+    def choice(self, x: Sequence) -> Any:
+        return _rd.choices(population=x, weights=self.get_weights(len(x)), k=1)[0]
+
+    def choices(self, x: Sequence, n: int) -> Sequence:
+        return _rd.choices(population=x, weights=self.get_weights(len(x)), k=n)
+
+
+class BinomialChooser(DiscreteChooser):
+    def __init__(self, p: float):
+        self.p: float = p
+        self._weights: Union[list[float], None] = None
+
+    def get_weights(self, length: int) -> list[float]:
+        if self._weights is None:
+            self._weights = _binom.pmf(_np.arange(0, length, 1), length, self.p)
+        return self._weights
+
+
+class PoissonChooser(DiscreteChooser):
+    def __init__(self, lam: float):
+        self.lam: float = lam
+        self._weights: Union[list[float], None] = None
+
+    def get_weights(self, length: int) -> list[float]:
+        if self._weights is None:
+            self._weights = _poisson.pmf(_np.arange(0, length, 1), self.lam)
+        return self._weights
+
+
 class Association(object):
     def __init__(self, the_other_generator: Any):
         """
@@ -77,6 +112,11 @@ class Association(object):
         :return: Anything. If not none, the return will be returned by `generate()`, or the process will continue.
         """
         pass
+
+
+class TheSameAs(Association):
+    def associate(self, g: Any, the_other_generator_output: Any) -> Any:
+        return the_other_generator_output
 
 
 class GeneratorOutput(object):
@@ -404,6 +444,10 @@ class ItertableGenerator(Generator):
 
 
 class LetterGenerator(Generator):
+    """
+    Generate a letter.
+    """
+
     def source(self) -> Sequence:
         return LETTER_SET
 
@@ -412,11 +456,23 @@ class LetterGenerator(Generator):
 
 
 class StringGenerator(LetterGenerator):
+    """
+    Generate a string of letters.
+    Arguments:
+        (Required) length of string
+    """
+
     def make(self, *args) -> Any:
         return "".join(self.choices(args[0]))
 
 
 class NumberGenerator(StringGenerator):
+    """
+    Generate a string of numbers.
+    Arguments:
+        (Required) length of string
+    """
+
     def source(self) -> Sequence:
         return NUMBER_SET
 
@@ -428,11 +484,24 @@ class NumberGenerator(StringGenerator):
 
 
 class LetterAndNumberGenerator(StringGenerator):
+    """
+    Generate a string of letters and numbers.
+    Arguments:
+        (Required) length of string
+    """
+
     def source(self) -> Sequence:
         return NUMBER_SET + LETTER_SET
 
 
 class IntGenerator(Generator):
+    """
+    Generate an integer x(a ≤ x < b).
+    Global Arguments:
+        (Required) start: a
+        (Required) stop: b
+    """
+
     def source(self) -> Sequence:
         return range(self.get_required_arg("start", required_type=int),
                      self.get_required_arg("stop", required_type=int))
