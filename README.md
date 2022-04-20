@@ -500,6 +500,8 @@ Built-in choosers:
 - GaussianChooser
 - BinomialChooser
 - PoissonChooser
+- GeomChooser
+- ExponChooser
 
 Following demo programs take **GaussianChooser** as an example. The same for other choosers. Some choosers may require additional arguments. More information in the documentation section.
 

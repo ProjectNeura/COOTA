@@ -1,4 +1,4 @@
-from scipy.stats import binom as _binom, poisson as _poisson, hypergeom as _hypergeom
+from scipy.stats import binom as _binom, poisson as _poisson, geom as _geom, expon as _expon
 from typing import Union, Any, Iterable, Sequence
 import random as _rd
 import numpy as _np
@@ -84,6 +84,29 @@ class PoissonChooser(DiscreteChooser):
     def get_weights(self, length: int) -> list[float]:
         if self._weights is None:
             self._weights = _poisson.pmf(_np.arange(0, length, 1), self.lam)
+        return self._weights
+
+
+class GeomChooser(DiscreteChooser):
+    def __init__(self, k: float, p: float):
+        self.k: float = k
+        self.p: float = p
+        self._weights: Union[list[float], None] = None
+
+    def get_weights(self, length: int) -> list[float]:
+        if self._weights is None:
+            self._weights = _geom.pmf(self.k, self.p)
+        return self._weights
+
+
+class ExponChooser(DiscreteChooser):
+    def __init__(self, lam: float):
+        self.lam: float = lam
+        self._weights: Union[list[float], None] = None
+
+    def get_weights(self, length: int) -> list[float]:
+        if self._weights is None:
+            self._weights = _expon.pmf(_np.arange(0, length, 1), 1 / self.lam)
         return self._weights
 
 
