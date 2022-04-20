@@ -2,7 +2,7 @@ from functools import singledispatch as _singledispatch
 from matplotlib import pyplot as _plt
 
 
-from coota import generator as _g
+from coota import generator as _g, generator_sequence as _gs
 
 
 @_singledispatch
@@ -33,6 +33,11 @@ def _(obj: _g.Generator) -> None:
 @show.register(_g.GeneratorOutput)
 def _(obj: _g.GeneratorOutput) -> None:
     show(obj.get_output())
+
+
+@show.register(_gs.GeneratorSequence)
+def _(obj: _gs.GeneratorSequence) -> None:
+    print(obj)
 
 
 @show.register(list)
