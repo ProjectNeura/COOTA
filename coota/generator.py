@@ -363,30 +363,34 @@ class Generator(object):
         :exception LookupError: The associated generator generated before the generator to which is associated has
             generated.
         """
-        if not parse or not self.get_parseable():
-            return self
-        a = self.get_association()
-        if a is not None:
-            og: Generator = a.get_the_other_generator()
-            ogl = og._get_last()
-            if ogl is None:
-                raise LookupError("The associated generator must not generate until the generator to which is "
-                                  "associated has generated.")
-            r = a.associate(self, ogl)
-            if r is not None:
+        r = None
+        try:
+            if not parse or not self.get_parseable():
+                r = self
                 return r
-        if args == ():
-            args = self.get_default_args()
-        args = list(args)
-        for i in range(len(args)):
-            arg = args[i]
-            if isinstance(arg, Generator):
-                args[i] = arg.generate(parse=parse)
-        r = self.make(*args)
-        if isinstance(r, Generator):
-            r = r.generate(parse=parse)
-        self._set_last(r)
-        return r
+            a = self.get_association()
+            if a is not None:
+                og: Generator = a.get_the_other_generator()
+                ogl = og._get_last()
+                if ogl is None:
+                    raise LookupError("The associated generator must not generate until the generator to which is "
+                                      "associated has generated.")
+                r = a.associate(self, ogl)
+                if r is not None:
+                    return r
+            if args == ():
+                args = self.get_default_args()
+            args = list(args)
+            for i in range(len(args)):
+                arg = args[i]
+                if isinstance(arg, Generator):
+                    args[i] = arg.generate(parse=parse)
+            r = self.make(*args)
+            if isinstance(r, Generator):
+                r = r.generate(parse=parse)
+            return r
+        finally:
+            self._set_last(r)
 
     def output(self, *args, parse: bool = False) -> GeneratorOutput:
         """
