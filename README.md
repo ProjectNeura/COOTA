@@ -618,9 +618,40 @@ for i in generator_sequence:
 
 In this example, I want to generate five random names containing gender. However, if the two generators are independent of each other, there may be a man with a female name. That's what an **Association** is for.
 
+#### Generator Sequence
+
+A **GeneratorSequence** provides a convenient way to generate a batch of data.
+
+For example, to generate some information in a string.
+
+```python
+from coota import *
+from coota.preset import *
+
+
+gs = GeneratorSequence("Hello, my name is ", NameGenerator(), ". ", n=10)
+for i in gs:
+	print(i)
+```
+
+```shell
+Hello, my name is Keith. 
+Hello, my name is Allison. 
+Hello, my name is Eugene. 
+Hello, my name is Helena. 
+Hello, my name is Sabrina. 
+Hello, my name is Ian. 
+Hello, my name is Alina. 
+Hello, my name is Carry. 
+Hello, my name is Oliver. 
+Hello, my name is Adelaide. 
+```
+
+It can be also used in generating json strings.
+
 ### Data Saving
 
-Following cases take a **Generator** as example. The same for other objects. More information in the documentation section.
+Following cases take a **Generator** as an example. The same for other objects. More information in the documentation section.
 
 Supported objects:
 
@@ -1129,4 +1160,14 @@ def step(self) -> bool:
 | Name   | Usage                                            |
 | ------ | ------------------------------------------------ |
 | return | True: continue iteration. False: stop iteration. |
+
+### GeneratorSequence
+
+A **GeneratorSequence** provides a convenient way to generate a batch of data.
+
+#### `__init__()`
+
+```python
+def __init__(self, *sequence, n: Union[int, _g.IntGenerator, _g.IntIterable], t: type = str):
+```
 

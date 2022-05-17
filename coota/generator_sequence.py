@@ -70,6 +70,3 @@ class GeneratorSequence(object):
         for _ in range(self._n):
             r.append(self._next())
         return _g.GeneratorOutput(r)
-
-    def save(self) -> None:
-        pass
