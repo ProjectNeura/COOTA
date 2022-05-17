@@ -5,9 +5,9 @@ from coota import generator as _g
 
 
 class GeneratorSequence(object):
-    def __init__(self, *sequence, n: int, t: type = str):
+    def __init__(self, *sequence, n: Union[int, _g.IntGenerator, _g.IntIterable], t: type = str):
         self._sequential: tuple = sequence
-        self._n: int = n
+        self._n: int = n if isinstance(n, int) else n.generate()
         self._t: type = t
         self._i: int = n
 
