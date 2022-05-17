@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="coota",
-    version="1.0.0",
+    version="1.0.1",
     author="ATATC",
     author_email="futerry@outlook.com",
     description="A powerful data-generating library.",
