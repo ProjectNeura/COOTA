@@ -26,7 +26,8 @@ class Operator(object):
         return self._path
 
     @_abc.abstractmethod
-    def get_id(self) -> int: pass
+    def get_id(self) -> int:
+        raise NotImplementedError
 
     def save(self) -> None:
         class_id = self.e()
@@ -35,7 +36,8 @@ class Operator(object):
 
     @staticmethod
     @_abc.abstractmethod
-    def loads(content: bytes) -> Any: pass
+    def loads(content: bytes) -> Any:
+        raise NotImplementedError
 
     def load(self) -> Any:
         with open(self.get_path(), "rb") as f:
@@ -52,7 +54,7 @@ class ObjectOperator(Operator):
 
     @_abc.abstractmethod
     def get_id(self) -> int:
-        pass
+        raise NotImplementedError
 
     @staticmethod
     def loads(content: bytes) -> Any:
