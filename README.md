@@ -22,13 +22,13 @@ Join us | 加入我们
 
 ***Requires Python 3.x.***
 
-#### Windows / Mac OS
+#### Windows
 
 ```shell
 pip install coota
 ```
 
-#### Linux
+#### Linux / Mac OS
 
 ```shell
 pip3 install coota
