@@ -12,7 +12,7 @@ setuptools.setup(
                      "that shows great randomness. It also supports making generators conform to a "
                      "certain distribution and associating two generators.",
     long_description_content_type="text/markdown",
-    url="https://github.com/atatc/coota",
+    url="https://github.com/ATATC/COOTA",
     packages=setuptools.find_packages(),
     install_requires=["numpy", "matplotlib", "scipy"],
 )
