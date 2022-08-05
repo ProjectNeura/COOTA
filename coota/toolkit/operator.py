@@ -1,7 +1,7 @@
-from functools import singledispatch as _singledispatch
+from functools import singledispatch
+from abc import abstractmethod
 from typing import Any, Union
 import pickle as _pickle
-import abc as _abc
 import os as _os
 
 
@@ -25,7 +25,7 @@ class Operator(object):
     def get_path(self) -> Union[str, _os.PathLike[str]]:
         return self._path
 
-    @_abc.abstractmethod
+    @abstractmethod
     def get_id(self) -> int:
         raise NotImplementedError
 
@@ -35,7 +35,7 @@ class Operator(object):
             f.write(class_id + self.get_content())
 
     @staticmethod
-    @_abc.abstractmethod
+    @abstractmethod
     def loads(content: bytes) -> Any:
         raise NotImplementedError
 
@@ -45,14 +45,14 @@ class Operator(object):
             if c[:4] != self.e():
                 raise AttributeError(f"File is not formatted as class id {self.e()}.")
             self._content = c[4:]
-        return self.loads(content=self.get_content())
+        return Operator.loads(content=self.get_content())
 
 
 class ObjectOperator(Operator):
     def __init__(self, path: Union[str, _os.PathLike[str]], obj: Any = None):
         super().__init__(path, None if obj is None else _pickle.dumps(obj))
 
-    @_abc.abstractmethod
+    @abstractmethod
     def get_id(self) -> int:
         raise NotImplementedError
 
@@ -121,36 +121,36 @@ def load(path: Union[str, _os.PathLike[str]]) -> Any:
             raise AttributeError(f"File {path} cannot be loaded because of its unknown type.")
 
 
-@_singledispatch
-def save(obj: Any, path: Union[str, _os.PathLike[str]]) -> None:
-    raise TypeError(f"No known case for type {type(obj)}, {type(path)}.")
+@singledispatch
+def save(obj: Any, filename: Union[str, _os.PathLike[str]]):
+    raise TypeError(f"No known case for type {type(obj)}, {type(filename)}.")
 
 
 @save.register(str)
-def _(obj: str, path: Union[str, _os.PathLike[str]]) -> None:
-    StringOperator(path, obj.encode()).save()
+def _(obj: str, filename: Union[str, _os.PathLike[str]]):
+    StringOperator(filename, obj.encode()).save()
 
 
 @save.register(_g.Chooser)
-def _(obj: _g.Chooser, path: Union[str, _os.PathLike[str]]) -> None:
-    ChooserOperator(path, obj).save()
+def _(obj: _g.Chooser, filename: Union[str, _os.PathLike[str]]):
+    ChooserOperator(filename, obj).save()
 
 
 @save.register(_g.Association)
-def _(obj: _g.Association, path: Union[str, _os.PathLike[str]]) -> None:
-    AssociationOperator(path, obj).save()
+def _(obj: _g.Association, filename: Union[str, _os.PathLike[str]]):
+    AssociationOperator(filename, obj).save()
 
 
 @save.register(_g.Generator)
-def _(obj: _g.Generator, path: Union[str, _os.PathLike[str]]) -> None:
-    GeneratorOperator(path, obj).save()
+def _(obj: _g.Generator, filename: Union[str, _os.PathLike[str]]):
+    GeneratorOperator(filename, obj).save()
 
 
 @save.register(_g.GeneratorOutput)
-def _(obj: _g.GeneratorOutput, path: Union[str, _os.PathLike[str]]) -> None:
-    GeneratorOutputOperator(path, obj).save()
+def _(obj: _g.GeneratorOutput, filename: Union[str, _os.PathLike[str]]):
+    GeneratorOutputOperator(filename, obj).save()
 
 
 @save.register(_gs.GeneratorSequence)
-def _(obj: _gs.GeneratorSequence, path: Union[str, _os.PathLike[str]]) -> None:
-    GeneratorSequenceOperator(path, obj).save()
+def _(obj: _gs.GeneratorSequence, filename: Union[str, _os.PathLike[str]]):
+    GeneratorSequenceOperator(filename, obj).save()

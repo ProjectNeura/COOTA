@@ -1,14 +1,14 @@
 from scipy.stats import binom as _binom, poisson as _poisson, geom as _geom, expon as _expon
 from typing import Union, Any, Iterable, Sequence
+from abc import abstractmethod
 import random as _rd
 import numpy as _np
-import abc as _abc
 
 from coota.sets import *
 
 
 class Chooser(object):
-    @_abc.abstractmethod
+    @abstractmethod
     def choice(self, x: Sequence) -> Any:
         """
         This method specifies how the chooser selects an item.
@@ -17,7 +17,7 @@ class Chooser(object):
         """
         raise NotImplementedError
 
-    @_abc.abstractmethod
+    @abstractmethod
     def choices(self, x: Sequence, n: int) -> Sequence:
         """
         This method specifies how the chooser selects a batch of items.
@@ -43,18 +43,18 @@ class GaussianChooser(Chooser):
         return s, s / 3
 
     def choices(self, x: Sequence, n: int) -> Sequence:
-        choices = _np.random.normal(*self._analyse(x), size=n)
+        choices = _np.random.normal(*GaussianChooser._analyse(x), size=n)
         r = []
         for c in choices:
             r.append(x[int(c)])
         return r
 
     def choice(self, x: Sequence) -> Any:
-        return x[int(_np.random.normal(*self._analyse(x), size=1))]
+        return x[int(_np.random.normal(*GaussianChooser._analyse(x), size=1))]
 
 
 class DiscreteChooser(Chooser):
-    @_abc.abstractmethod
+    @abstractmethod
     def get_weights(self, length: int) -> list[float]:
         raise NotImplementedError
 
@@ -126,7 +126,7 @@ class Association(object):
         """
         return self._other_generator
 
-    @_abc.abstractmethod
+    @abstractmethod
     def associate(self, g: Any, the_other_generator_output: Any) -> Any:
         """
         This method specifies the association between the output of two generators.
@@ -327,7 +327,7 @@ class Generator(object):
         s = self.get_source()
         return self.get_chooser().choices(s, n)
 
-    @_abc.abstractmethod
+    @abstractmethod
     def source(self) -> Sequence:
         """
         This method specifies what data the generator may generate.
@@ -345,7 +345,7 @@ class Generator(object):
             self._set_source_cache(self.source())
         return self._get_source_cache() if cache_on else self.source()
 
-    @_abc.abstractmethod
+    @abstractmethod
     def make(self, *args) -> Any:
         """
         This method specifies how to generate data.
@@ -446,7 +446,7 @@ class ItertableGenerator(Generator):
             raise TypeError("When this method is called, the pointer must be of type int.")
         return self.get_source()[p: p + n]
 
-    @_abc.abstractmethod
+    @abstractmethod
     def initialize(self) -> None:
         """
         This is a callback used to set initialization operations such as pointers.
@@ -454,7 +454,7 @@ class ItertableGenerator(Generator):
         """
         raise NotImplementedError
 
-    @_abc.abstractmethod
+    @abstractmethod
     def step(self) -> bool:
         """
         This method specifies how the iterator iterates.
