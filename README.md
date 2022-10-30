@@ -10,7 +10,7 @@ Join us | 加入我们
 
 ## What is COOTA
 
-**COOTA**(Come Out Of Thin Air) is a powerful data-generating python library. By supporting generator nesting, it allows you to generate a variety of data that shows great randomness. It also supports making generators conform to a certain distribution and associating two generators.
+**COOTA** (Come Out of Thin Air) is a powerful data-generating python library. By supporting generator nesting, it allows you to generate a variety of data that shows great randomness. It also supports making generators conform to a certain distribution and associating two generators.
 
 ## Catalog
 
